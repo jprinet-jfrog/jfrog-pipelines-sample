@@ -1,21 +1,21 @@
 resources:
-  - name: sample_resource
+  - name: sample_resource_feature
     type: GitRepo
     configuration:
       gitProvider: github_jprinet
       path: jprinet/jfrog-pipelines-sample
       branches:
-        include: master
+        include: feature/*
 
 pipelines:
-  - name: sample_pipelines
+  - name: sample_pipelines_feature
 
     steps:
     - name: step_1
       type: Bash
       configuration:
         inputResources:
-          - name: sample_resource
+          - name: sample_resource_feature
       execution:
         onExecute:
           - echo "Hello World!"

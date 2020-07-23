@@ -28,3 +28,12 @@ pipelines:
       execution:
         onExecute:
           - echo "Goodbye World!"  
+
+    - name: step_3
+      type: Bash
+      configuration:
+        inputSteps:
+          - name: step_1
+      execution:
+        onExecute:
+          - echo "Goodbye Parallel World!"  

@@ -18,37 +18,24 @@ pipelines:
   - name: sample_pipelines_feature
 
     steps:
-    - name: build
-      type: GradleBuild
-      configuration:
-        environmentVariables:
-          GRADLE_OPTS: -Dorg.gradle.daemon=false
-        gradleCommand: jfrog rt gradle build artifactoryPublish --build-name=pipelines-gradle-sample --build-number=1
-        sourceLocation: .
-        configFileLocation: .jfrog/projects
-        configFileName: gradle.yaml
-        autoPublishBuildInfo: true
-        inputResources:
-          - name: sample_resource_feature
-        outputResources:
-          - name: myBuildInfo
-        integrations:
-          - name: artifactory_jerome
-      execution:
-        onStart:
-          - echo "Preparing for work..."
-        onSuccess:
-          - echo "Job well done!"
-        onFailure:
-          - echo "uh oh, something went wrong"
-        onComplete:
-          - echo "Cleaning up some stuff"
+      - name: build_bash
+        type: Bash
+        configuration:
+          inputResources:
+            - name: sample_resource_feature
+          outputResources:
+            - name: myBuildInfo
+        execution:
+          onExecute:
+            - jfrog rt c jerome-gcp --interactive=false --url http://artifactory-jerome.soleng-emea-staging.jfrog.team/artifactory --user admin --access-token eyJ2ZXIiOiIyIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiI2ZFYtT19tQjFMWFdIaUtva3kxUDh3NVJXR0lLRW92N0NZYmF0ZmpoTzR3In0.eyJzdWIiOiJhZG1pbiIsInNjcCI6ImFwcGxpZWQtcGVybWlzc2lvbnNcL2FkbWluIGFwaToqIiwiYXVkIjoiamZydEAqIiwiaXNzIjoiamZmZUAwMDAiLCJpYXQiOjE1OTU4NDEyMzIsImp0aSI6Ijg4OGNhODQzLWE3MGYtNDgzMi05ZGIxLTQ4YTIyNWFkOTJkZiJ9.gTI3zw4WQQC0Bx2yj1f7kT00IrGL82EZLbFQjmyLL9YwS1gxtoYKJruPtEkwHBoMpnKw5iSKeVVl-DpANheFwMjEbS2EYbj9xWh_VfzwP0kM_tjY6yMt12_BUES8AG5-DfB21BjYDZQ0MlASfaIMv0M4RB1GzSpgZ3qvc4ytHkGy79Av7lu8FpB8kZKqKB2Ue--DaA0ixW7WiVnf3AcsLp_jpjAGRk2knsXhTLp7yNo5By07UieP608CGCD_hlmoYbMpXI5qvEY4gcMxaxZVGlpKeMUS0nA2MHLUoU3llvPTHiZYFE-kpx4poqCj49jODl4oJk8SlJZbBJ8mFl1jeQ
+            - jfrog rt ping
+            - jfrog rt gradle build artifactoryPublish --build-name=pipelines-gradle-sample
 
-    - name: cleanup
-      type: Bash
-      configuration:
-        inputSteps:
-          - name: build
-      execution:
-        onExecute:
-          - echo "Goodbye World!"
+      - name: cleanup
+        type: Bash
+        configuration:
+          inputSteps:
+            - name: build_bash
+        execution:
+          onExecute:
+            - echo "Goodbye World!"

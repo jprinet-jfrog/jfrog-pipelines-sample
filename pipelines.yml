@@ -27,10 +27,10 @@ pipelines:
               custom:
                 name: drydock/u18java
                 tag: master
-          gradleCommand:        clean artifactoryPublish -b build.gradle
+          gradleCommand:        clean artifactoryPublish
           sourceLocation:       .
-          configFileLocation:   .
-          configFileName:       pipelines-config
+          configFileLocation:   .jfrog/projects
+          configFileName:       gradle.yaml
           forceXrayScan:        false
           failOnScan:           false
           autoPublishBuildInfo: true

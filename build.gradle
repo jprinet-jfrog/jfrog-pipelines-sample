@@ -1,7 +1,6 @@
 plugins {
     id 'java'
     id 'application'
-    id 'com.jfrog.artifactory' version '4.16.1'
 }
 
 group='com.jfrog.jerome'

@@ -1,12 +1,12 @@
 resources:
-  - name: sample_resource_feature
+  - name: sample_resource_test
     type: GitRepo
     configuration:
       gitProvider: github_jprinet
       path: jprinet/jfrog-pipelines-sample
       branches:
-        include: feature/add_gradle
-  - name: myBuildInfo
+        include: test
+  - name: myBuildInfoTest
     type: BuildInfo
     configuration:
       sourceArtifactory:    artifactory_jerome
@@ -15,28 +15,34 @@ resources:
       externalCI:           jenkinsIntegration
 
 pipelines:
-  - name: sample_pipelines_feature
+  - name: sample_pipelines_test
 
     steps:
       - name: build_native
         type: GradleBuild
         configuration:
-          gradleCommand:        clean artifactoryPublish
+          runtime:
+            type: image
+            image:
+              custom:
+                name: drydock/u18java
+                tag: master
+          gradleCommand:        clean artifactoryPublish -b build.gradle
           sourceLocation:       .
           configFileLocation:   .
-          configFileName:       gradle-pipelines-config
+          configFileName:       pipelines-config
           forceXrayScan:        false
           failOnScan:           false
           autoPublishBuildInfo: true
           inputResources:
-            - name: sample_resource_feature
+            - name: sample_resource_test
           outputResources:
-            - name: myBuildInfo
+            - name: myBuildInfoTest
           integrations:
             - name: artifactory_jerome
         execution:
           onStart:
-            - cd $res_sample_resource_feature_resourcePath
+            - cd $res_sample_resource_test_resourcePath
             - ls
 
 

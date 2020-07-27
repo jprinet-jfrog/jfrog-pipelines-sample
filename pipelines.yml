@@ -10,14 +10,14 @@ resources:
     type: BuildInfo
     configuration:
       sourceArtifactory:    artifactory_jerome
-      buildName:            pipelines-gradle-sample
+      buildName:            sample_pipelines_test
       buildNumber:          ${run_number}
       externalCI:           jenkinsIntegration
   - name: myBuildInfoTestPromoted
     type: BuildInfo
     configuration:
       sourceArtifactory: artifactory_jerome
-      buildName: pipelines-gradle-sample
+      buildName: sample_pipelines_test
       buildNumber: '${run_number}'
 
 pipelines:
@@ -46,10 +46,6 @@ pipelines:
             - name: myBuildInfoTest
           integrations:
             - name: artifactory_jerome
-        execution:
-          onStart:
-            - cd $res_sample_resource_test_resourcePath
-            - ls
 
       - name: promote
         type: PromoteBuild

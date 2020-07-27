@@ -4,41 +4,10 @@ plugins {
     id 'com.jfrog.artifactory' version '4.16.1'
 }
 
+group='com.jfrog.jerome'
 version='1.0.0'
 
 mainClassName = 'com.jfrog.jerome.HelloWorld'
-
-repositories {
-    maven {
-        url 'http://artifactory-jerome.soleng-emea-staging.jfrog.team/artifactory/jerome-mvn-dev'
-        credentials {
-            username = 'admin'
-            password = 'adminadmin'
-        }
-    }
-}
-artifactory {
-    contextUrl = 'http://artifactory-jerome.soleng-emea-staging.jfrog.team/artifactory'
-    publish {
-        contextUrl = 'http://artifactory-jerome.soleng-emea-staging.jfrog.team/artifactory'
-        repository {
-            repoKey = 'jerome-mvn-dev'
-            username = 'admin'
-            password = 'adminadmin'
-        }
-        defaults {
-            publishConfigs('archives', 'published')
-            properties = ['qa.level': 'basic', 'qa.os': 'deb']
-            publishBuildInfo = true
-            publishArtifacts = true
-            publishPom = true
-        }
-    }
-    clientConfig.setIncludeEnvVars(true)
-    clientConfig.setEnvVarsExcludePatterns('*password*,*secret*')
-    clientConfig.setEnvVarsIncludePatterns('*not-secret*')
-    clientConfig.timeout = 600
-}
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

@@ -13,6 +13,12 @@ resources:
       buildName:            pipelines-gradle-sample
       buildNumber:          ${run_number}
       externalCI:           jenkinsIntegration
+  - name: myBuildInfoTestPromoted
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: artifactory_jerome
+      buildName: pipelines-gradle-sample
+      buildNumber: '${run_number}'
 
 pipelines:
   - name: sample_pipelines_test
@@ -45,4 +51,18 @@ pipelines:
             - cd $res_sample_resource_test_resourcePath
             - ls
 
-
+      - name: promote
+        type: PromoteBuild
+        configuration:
+          targetRepository:      jerome-mvn-int-local
+          includeDependencies:   true
+          status:                'DEV OK'
+          comment:               'passed DEV pipeline'
+          copy:                  false
+          inputResources:
+            - name:         myBuildInfoTest
+              trigger: false
+          inputSteps:
+            - name: build_native
+          outputResources:
+            - name:         myBuildInfoTestPromoted

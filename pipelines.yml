@@ -31,8 +31,8 @@ pipelines:
             type: image
             image:
               custom:
-                name: drydock/u18java
-                tag: master
+                name: jprinet/jfrog-pipelines-runner
+                tag: latest
           gradleCommand:        clean artifactoryPublish
           sourceLocation:       .
           configFileLocation:   .jfrog/projects
@@ -46,6 +46,10 @@ pipelines:
             - name: myBuildInfoTest
           integrations:
             - name: artifactory_jerome
+        execution:
+          onStart:
+            - java -version
+            - jfrog -v
 
       - name: promote
         type: PromoteBuild

@@ -1,31 +1,18 @@
 resources:
-  - name: sample_resource_test
+  - name: sample_resource_bash_test
     type: GitRepo
     configuration:
       gitProvider: github_jprinet
       path: jprinet/jfrog-pipelines-sample
       branches:
-        include: test
-  - name: myBuildInfoTest
-    type: BuildInfo
-    configuration:
-      sourceArtifactory:    artifactory_jerome
-      buildName:            sample_pipelines_test
-      buildNumber:          ${run_number}
-      externalCI:           jenkinsIntegration
-  - name: myBuildInfoTestPromoted
-    type: BuildInfo
-    configuration:
-      sourceArtifactory: artifactory_jerome
-      buildName: sample_pipelines_test
-      buildNumber: '${run_number}'
+        include: feature/add_bash_step
 
 pipelines:
-  - name: sample_pipelines_test
+  - name: sample_pipelines_bash_test
 
     steps:
-      - name: build_native
-        type: GradleBuild
+      - name: build_bash
+        type: Bash
         configuration:
           runtime:
             type: image
@@ -33,36 +20,18 @@ pipelines:
               custom:
                 name: jprinet/jfrog-pipelines-runner
                 tag: latest
-          gradleCommand:        clean artifactoryPublish
-          sourceLocation:       .
-          configFileLocation:   .jfrog/projects
-          configFileName:       gradle.yaml
-          forceXrayScan:        false
-          failOnScan:           false
-          autoPublishBuildInfo: true
+          environmentVariables:
+            JFROG_CLI_OFFER_CONFIG: 'false'
+            CI: 'true'
+            GRADLE_OPTS: -Dorg.gradle.daemon=false
           inputResources:
-            - name: sample_resource_test
-          outputResources:
-            - name: myBuildInfoTest
-          integrations:
-            - name: artifactory_jerome
+            - name: sample_resource_bash_test
         execution:
-          onStart:
-            - java -version
-            - jfrog -v
-
-      - name: promote
-        type: PromoteBuild
-        configuration:
-          targetRepository:      jerome-mvn-int-local
-          includeDependencies:   true
-          status:                'DEV OK'
-          comment:               'passed DEV pipeline'
-          copy:                  false
-          inputResources:
-            - name:         myBuildInfoTest
-              trigger: false
-          inputSteps:
-            - name: build_native
-          outputResources:
-            - name:         myBuildInfoTestPromoted
+          onExecute:
+            - cd $res_sample_resource_bash_test_resourcePath
+            - curl -fL https://getcli.jfrog.io | sh
+            - ./jfrog rt c jerome-gcp --interactive=false --url=http://artifactory-jerome.soleng-emea-staging.jfrog.team/artifactory --user=admin --apikey=AKCp5fUDyJeXLhFUXrnuziS7w9BEe1QUsbePsr5WLBQerXcFHwq71NYoEAbrsWQ6265hPxo5C
+            - ./jfrog rt ping
+            - ./jfrog rt gradle-config --server-id-resolve=jerome-gcp --server-id-deploy=jerome-gcp --repo-resolve=jerome-mvn-dev --repo-deploy=jerome-mvn-dev --use-wrapper=true
+            - ./jfrog rt gradle build artifactoryPublish -Dorg.gradle.daemon=false --build-name=pipelines-gradle-sample-bash --build-number=${run_number}
+            - ./jfrog rt bp pipelines-gradle-sample-bash ${run_number}

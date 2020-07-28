@@ -5,7 +5,7 @@ resources:
       gitProvider: github_jprinet
       path: jprinet/jfrog-pipelines-sample
       branches:
-        include: test
+        include: feature/add_gradle_native_step
   - name: myBuildInfoTest
     type: BuildInfo
     configuration:
@@ -31,8 +31,8 @@ pipelines:
             type: image
             image:
               custom:
-                name: drydock/u18java
-                tag: master
+                name: jprinet/jfrog-pipelines-runner
+                tag: latest
           gradleCommand:        clean artifactoryPublish
           sourceLocation:       .
           configFileLocation:   .jfrog/projects
@@ -46,6 +46,11 @@ pipelines:
             - name: myBuildInfoTest
           integrations:
             - name: artifactory_jerome
+        execution:
+          onStart:
+            - java -version
+            - jfrog -v
+            - ls -la ${res_sample_resource_test_resourcePath}/.jfrog/projects/gradle.yaml
 
       - name: promote
         type: PromoteBuild

@@ -1,27 +1,27 @@
 resources:
-  - name: sample_resource_test
+  - name: sample_resource_violation
     type: GitRepo
     configuration:
       gitProvider: github_jprinet
       path: jprinet/jfrog-pipelines-sample
       branches:
-        include: feature/add_gradle_native_step
-  - name: myBuildInfoTest
+        include: feature/add_xray_violation
+  - name: myBuildInfoViolation
     type: BuildInfo
     configuration:
       sourceArtifactory:    artifactory_jerome
-      buildName:            sample_pipelines_test
+      buildName:            sample_pipelines_violation
       buildNumber:          ${run_number}
       externalCI:           jenkinsIntegration
-  - name: myBuildInfoTestPromoted
+  - name: myBuildInfoViolationPromoted
     type: BuildInfo
     configuration:
       sourceArtifactory: artifactory_jerome
-      buildName: sample_pipelines_test
+      buildName: sample_pipelines_violation
       buildNumber: '${run_number}'
 
 pipelines:
-  - name: sample_pipelines_test
+  - name: sample_pipelines_violation
 
     steps:
       - name: build_native
@@ -37,20 +37,19 @@ pipelines:
           sourceLocation:       .
           configFileLocation:   .jfrog/projects
           configFileName:       gradle.yaml
-          forceXrayScan:        false
-          failOnScan:           false
+          forceXrayScan:        true
+          failOnScan:           true
           autoPublishBuildInfo: true
           inputResources:
-            - name: sample_resource_test
+            - name: sample_resource_violation
           outputResources:
-            - name: myBuildInfoTest
+            - name: myBuildInfoViolation
           integrations:
             - name: artifactory_jerome
         execution:
           onStart:
             - java -version
             - jfrog -v
-            - ls -la ${res_sample_resource_test_resourcePath}/.jfrog/projects/gradle.yaml
 
       - name: promote
         type: PromoteBuild
@@ -61,9 +60,9 @@ pipelines:
           comment:               'passed DEV pipeline'
           copy:                  false
           inputResources:
-            - name:         myBuildInfoTest
+            - name:         myBuildInfoViolation
               trigger: false
           inputSteps:
             - name: build_native
           outputResources:
-            - name:         myBuildInfoTestPromoted
+            - name:         myBuildInfoViolationPromoted

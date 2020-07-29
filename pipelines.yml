@@ -1,68 +1,49 @@
 resources:
-  - name: sample_resource_violation
+  - name: sample_resource_docker
     type: GitRepo
     configuration:
       gitProvider: github_jprinet
       path: jprinet/jfrog-pipelines-sample
       branches:
-        include: feature/add_xray_violation
-  - name: myBuildInfoViolation
+        include: feature/add_docker
+  - name: myBuildInfoDocker
     type: BuildInfo
     configuration:
       sourceArtifactory:    artifactory_jerome
-      buildName:            sample_pipelines_violation
+      buildName:            sample_pipelines_docker
       buildNumber:          ${run_number}
-      externalCI:           jenkinsIntegration
-  - name: myBuildInfoViolationPromoted
-    type: BuildInfo
-    configuration:
-      sourceArtifactory: artifactory_jerome
-      buildName: sample_pipelines_violation
-      buildNumber: '${run_number}'
 
 pipelines:
-  - name: sample_pipelines_violation
-
+  - name: sample_pipelines_docker
     steps:
-      - name: build_native
-        type: GradleBuild
+
+      - name: docker_build
+        type: DockerBuild
         configuration:
-          runtime:
-            type: image
-            image:
-              custom:
-                name: jprinet/jfrog-pipelines-runner
-                tag: latest
-          gradleCommand:        clean artifactoryPublish
-          sourceLocation:       .
-          configFileLocation:   .jfrog/projects
-          configFileName:       gradle.yaml
-          forceXrayScan:        true
-          failOnScan:           true
-          autoPublishBuildInfo: true
+          affinityGroup: dockerGroup
+          dockerFileLocation: .
+          dockerFileName: Dockerfile
+          dockerImageName: 'artifactory-jerome.soleng-emea-staging.jfrog.team/jerome-docker-dev/hello-pipelines'
+          dockerImageTag: ${run_number}
           inputResources:
-            - name: sample_resource_violation
-          outputResources:
-            - name: myBuildInfoViolation
+            - name: sample_resource_docker
           integrations:
             - name: artifactory_jerome
-        execution:
-          onStart:
-            - java -version
-            - jfrog -v
 
-      - name: promote
-        type: PromoteBuild
+      - name: docker_push
+        type: DockerPush
         configuration:
-          targetRepository:      jerome-mvn-int-local
-          includeDependencies:   true
-          status:                'DEV OK'
-          comment:               'passed DEV pipeline'
-          copy:                  false
-          inputResources:
-            - name:         myBuildInfoViolation
-              trigger: false
+          affinityGroup: dockerGroup
+          targetRepository: jerome-docker-dev
+          integrations:
+            - name: artifactory_jerome
           inputSteps:
-            - name: build_native
+            - name: docker_build
+
+      - name: publish_build_info
+        type: PublishBuildInfo
+        configuration:
+          inputSteps:
+            - name: docker_push
           outputResources:
-            - name:         myBuildInfoViolationPromoted
+            - name: myBuildInfoDocker

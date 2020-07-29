@@ -1,3 +1,3 @@
-FROM alpine:latest
+FROM mariadb
 
 RUN ls -la

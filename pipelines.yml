@@ -49,6 +49,11 @@ pipelines:
         configuration:
           affinityGroup: dockerGroup
           targetRepository: jerome-docker-dev
+          autoPublishBuildInfo: true
+          forceXrayScan: true
+          failOnScan: true
+          outputResources:
+            - name: myBuildInfoDocker
           integrations:
             - name: artifactory_jerome
           inputSteps:
@@ -56,11 +61,3 @@ pipelines:
         execution:
           onStart:
             - docker info
-
-      - name: publish_build_info
-        type: PublishBuildInfo
-        configuration:
-          inputSteps:
-            - name: docker_push
-          outputResources:
-            - name: myBuildInfoDocker

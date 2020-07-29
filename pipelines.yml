@@ -17,18 +17,32 @@ pipelines:
   - name: sample_pipelines_docker
     steps:
 
+      - name: configDaemon
+        type: Bash
+        configuration:
+          affinityGroup: dockerGroup
+          runtime:
+            type: host
+        execution:
+          onExecute:
+            - >
+              jq -n  '{ "graph": "/data", "mtu": 1460, "insecure-registries": ["jerome-docker-dev.artifactory-jerome.soleng-emea-staging.jfrog.team"]}' | jq . > /etc/docker/daemon.json
+            - sudo systemctl restart docker
+
       - name: docker_build
         type: DockerBuild
         configuration:
           affinityGroup: dockerGroup
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: 'artifactory-jerome.soleng-emea-staging.jfrog.team/jerome-docker-dev/hello-pipelines'
+          dockerImageName: 'jerome-docker-dev.artifactory-jerome.soleng-emea-staging.jfrog.team/hello-pipelines'
           dockerImageTag: ${run_number}
           inputResources:
             - name: sample_resource_docker
           integrations:
             - name: artifactory_jerome
+          inputSteps:
+            - name: configDaemon
 
       - name: docker_push
         type: DockerPush
@@ -39,6 +53,9 @@ pipelines:
             - name: artifactory_jerome
           inputSteps:
             - name: docker_build
+        execution:
+          onStart:
+            - docker info
 
       - name: publish_build_info
         type: PublishBuildInfo

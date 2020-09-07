@@ -30,7 +30,7 @@ pipelines:
           onExecute:
             - cd $res_sample_resource_bash_test_resourcePath
             - curl -fL https://getcli.jfrog.io | sh
-            - ./jfrog rt c jerome-gcp --interactive=false --url=http://artifactory-jerome.soleng-emea-staging.jfrog.team/artifactory --user=admin --apikey=AKCp5fUDyJeXLhFUXrnuziS7w9BEe1QUsbePsr5WLBQerXcFHwq71NYoEAbrsWQ6265hPxo5C
+            - ./jfrog rt c jerome-gcp --interactive=false --url=http://artifactory-jerome.soleng-emea-staging.jfrog.team/artifactory --user=admin --apikey=$API_KEY
             - ./jfrog rt ping
             - ./jfrog rt gradle-config --server-id-resolve=jerome-gcp --server-id-deploy=jerome-gcp --repo-resolve=jerome-mvn-dev --repo-deploy=jerome-mvn-dev --use-wrapper=true
             - ./jfrog rt gradle build artifactoryPublish -Dorg.gradle.daemon=false --build-name=pipelines-gradle-sample-bash --build-number=${run_number}

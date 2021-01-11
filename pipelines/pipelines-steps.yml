@@ -1,25 +1,19 @@
-resources:
-  - name: sample_resource_bash_test
-    type: GitRepo
-    configuration:
-      gitProvider: github_jprinet
-      path: jprinet/jfrog-pipelines-sample
-      branches:
-        include: feature/add_bash_step
-
 pipelines:
-  - name: sample_pipelines_bash_test
+  - name: jerome_pipelines_bash_test
 
     steps:
       - name: build_bash
         type: Bash
         configuration:
+          integrations:
+            - name: artifactory_secret
           runtime:
             type: image
             image:
-              custom:
-                name: jprinet/jfrog-pipelines-runner
-                tag: latest
+              auto:
+                language: java
+                versions:
+                  - "8.0"
           environmentVariables:
             JFROG_CLI_OFFER_CONFIG: 'false'
             CI: 'true'
@@ -30,8 +24,8 @@ pipelines:
           onExecute:
             - cd $res_sample_resource_bash_test_resourcePath
             - curl -fL https://getcli.jfrog.io | sh
-            - ./jfrog rt c jerome-gcp --interactive=false --url=http://artifactory-jerome.soleng-emea-staging.jfrog.team/artifactory --user=admin --apikey=$API_KEY
+            - ./jfrog rt c arti-gcp --interactive=false --url=http://artifactory-us.staging.gcp.devopsacc.team/artifactory --user=admin --apikey=${int_artifactory_secret_api_key}
             - ./jfrog rt ping
-            - ./jfrog rt gradle-config --server-id-resolve=jerome-gcp --server-id-deploy=jerome-gcp --repo-resolve=jerome-mvn-dev --repo-deploy=jerome-mvn-dev --use-wrapper=true
+            - ./jfrog rt gradle-config --server-id-resolve=arti-gcp --server-id-deploy=arti-gcp --repo-resolve=jerome-gradle --repo-deploy=jerome-gradle --use-wrapper=true
             - ./jfrog rt gradle build artifactoryPublish -Dorg.gradle.daemon=false --build-name=pipelines-gradle-sample-bash --build-number=${run_number}
             - ./jfrog rt bp pipelines-gradle-sample-bash ${run_number}

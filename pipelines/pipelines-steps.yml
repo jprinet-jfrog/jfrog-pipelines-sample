@@ -22,7 +22,7 @@ pipelines:
           targetRepository: jerome-docker
           autoPublishBuildInfo: true
           forceXrayScan: true
-          failOnScan: true
+          failOnScan: false
           outputResources:
             - name: myBuildInfoDocker
           integrations:

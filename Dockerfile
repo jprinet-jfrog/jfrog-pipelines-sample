@@ -1,3 +1,1 @@
-FROM mariadb
-
-RUN ls -la
+FROM nginxdemos/hello

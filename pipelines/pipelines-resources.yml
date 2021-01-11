@@ -12,3 +12,9 @@ resources:
       sourceArtifactory:    Artifactory
       buildName:            sample_pipelines_docker
       buildNumber:          ${run_number}
+  - name: myBuildInfoDockerPromoted
+    type: BuildInfo
+    configuration:
+      sourceArtifactory:    Artifactory
+      buildName:            sample_pipelines_docker
+      buildNumber:          ${run_number}

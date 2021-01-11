@@ -22,7 +22,7 @@ pipelines:
           targetRepository: jerome-docker
           autoPublishBuildInfo: true
           forceXrayScan: true
-          failOnScan: false
+          failOnScan: true
           outputResources:
             - name: myBuildInfoDocker
           integrations:
@@ -32,3 +32,21 @@ pipelines:
         execution:
           onStart:
             - docker info
+
+      - name: promote_build
+        type: PromoteBuild
+        configuration:
+          targetRepository:      docker-demo-prod-local
+          includeDependencies:   true
+          status:                "Validated by QA" 
+          comment:               "Ready for production"
+          copy:                  true
+ 
+          inputSteps:
+            - name: docker_push
+          inputResources:
+            - name:         myBuildInfoDocker
+              trigger: false
+          outputResources:
+            - name:         myBuildInfoDockerPromoted
+ 

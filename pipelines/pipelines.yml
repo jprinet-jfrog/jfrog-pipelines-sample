@@ -1,20 +1,5 @@
-resources:
-  - name: sample_resource_docker
-    type: GitRepo
-    configuration:
-      gitProvider: github_jprinet
-      path: jprinet/jfrog-pipelines-sample
-      branches:
-        include: feature/add_docker
-  - name: myBuildInfoDocker
-    type: BuildInfo
-    configuration:
-      sourceArtifactory:    artifactory_jerome
-      buildName:            sample_pipelines_docker
-      buildNumber:          ${run_number}
-
 pipelines:
-  - name: sample_pipelines_docker
+  - name: jerome_pipelines_docker
     steps:
 
       - name: configDaemon
@@ -26,7 +11,7 @@ pipelines:
         execution:
           onExecute:
             - >
-              jq -n  '{ "graph": "/data", "mtu": 1460, "insecure-registries": ["jerome-docker-dev.artifactory-jerome.soleng-emea-staging.jfrog.team"]}' | jq . > /etc/docker/daemon.json
+              jq -n  '{ "graph": "/data", "mtu": 1460, "insecure-registries": ["artifactory-us.staging.gcp.devopsacc.team:80/jerome-docker"]}' | jq . > /etc/docker/daemon.json
             - sudo systemctl restart docker
 
       - name: docker_build
@@ -35,12 +20,12 @@ pipelines:
           affinityGroup: dockerGroup
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: 'jerome-docker-dev.artifactory-jerome.soleng-emea-staging.jfrog.team/hello-pipelines'
+          dockerImageName: 'artifactory-us.staging.gcp.devopsacc.team:80/jerome-docker/hello-pipelines'
           dockerImageTag: ${run_number}
           inputResources:
             - name: sample_resource_docker
           integrations:
-            - name: artifactory_jerome
+            - name: Artifactory
           inputSteps:
             - name: configDaemon
 
@@ -48,14 +33,14 @@ pipelines:
         type: DockerPush
         configuration:
           affinityGroup: dockerGroup
-          targetRepository: jerome-docker-dev
+          targetRepository: jerome-docker
           autoPublishBuildInfo: true
           forceXrayScan: true
           failOnScan: true
           outputResources:
             - name: myBuildInfoDocker
           integrations:
-            - name: artifactory_jerome
+            - name: Artifactory
           inputSteps:
             - name: docker_build
         execution:

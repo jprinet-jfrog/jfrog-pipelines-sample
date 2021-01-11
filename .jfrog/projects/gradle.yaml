@@ -1,11 +1,11 @@
 version: 1
 type: gradle
 resolver:
-  repo: jerome-mvn-dev
-  serverId: artifactory_jerome
+  repo: jerome-gralde
+  serverId: Artifactory
 deployer:
-  repo: jerome-mvn-dev
-  serverId: artifactory_jerome
+  repo: jerome-gradle
+  serverId: Artifactory
   deployMavenDescriptors: true
   ivyPattern: '[organization]/[module]/ivy-[revision].xml'
   artifactPattern: '[organization]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]'

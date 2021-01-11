@@ -1,0 +1,14 @@
+resources:
+  - name: sample_resource_docker
+    type: GitRepo
+    configuration:
+      gitProvider: jerome_github
+      path: jprinet-jfrog/jfrog-pipelines-sample
+      branches:
+        include: feature/add_docker
+  - name: myBuildInfoDocker
+    type: BuildInfo
+    configuration:
+      sourceArtifactory:    Artifactory
+      buildName:            sample_pipelines_docker
+      buildNumber:          ${run_number}

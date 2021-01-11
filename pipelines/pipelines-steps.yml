@@ -2,18 +2,6 @@ pipelines:
   - name: jerome_pipelines_docker
     steps:
 
-      - name: configDaemon
-        type: Bash
-        configuration:
-          affinityGroup: dockerGroup
-          runtime:
-            type: host
-        execution:
-          onExecute:
-            - >
-              jq -n  '{ "graph": "/data", "mtu": 1460, "insecure-registries": ["artifactory-us.staging.gcp.devopsacc.team:80/jerome-docker"]}' | jq . > /etc/docker/daemon.json
-            - sudo systemctl restart docker
-
       - name: docker_build
         type: DockerBuild
         configuration:
@@ -26,8 +14,6 @@ pipelines:
             - name: sample_resource_docker
           integrations:
             - name: Artifactory
-          inputSteps:
-            - name: configDaemon
 
       - name: docker_push
         type: DockerPush

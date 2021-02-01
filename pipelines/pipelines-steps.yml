@@ -1,0 +1,52 @@
+pipelines:
+  - name: jerome_pipelines_docker
+    steps:
+
+      - name: docker_build
+        type: DockerBuild
+        configuration:
+          affinityGroup: dockerGroup
+          dockerFileLocation: .
+          dockerFileName: Dockerfile
+          dockerImageName: 'artifactory-us.staging.gcp.devopsacc.team:80/jerome-docker/hello-pipelines'
+          dockerImageTag: ${run_number}
+          inputResources:
+            - name: sample_resource_docker
+          integrations:
+            - name: Artifactory
+
+      - name: docker_push
+        type: DockerPush
+        configuration:
+          affinityGroup: dockerGroup
+          targetRepository: jerome-docker
+          autoPublishBuildInfo: true
+          forceXrayScan: true
+          failOnScan: true
+          outputResources:
+            - name: myBuildInfoDocker
+          integrations:
+            - name: Artifactory
+          inputSteps:
+            - name: docker_build
+        execution:
+          onStart:
+            - docker info
+
+      - name: promote_build
+        type: PromoteBuild
+        configuration:
+          targetRepository:      docker-demo-prod-local
+          includeDependencies:   true
+          status:                "Validated by QA" 
+          comment:               "Ready for production"
+          copy:                  true
+ 
+          inputSteps:
+            - name: docker_push
+          inputResources:
+            - name:         myBuildInfoDocker
+              trigger: false
+          outputResources:
+            - name:         myBuildInfoDockerPromoted
+ 

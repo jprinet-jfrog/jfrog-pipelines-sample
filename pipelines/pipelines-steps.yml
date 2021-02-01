@@ -8,7 +8,7 @@ pipelines:
           affinityGroup: dockerGroup
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: 'artifactory-us.staging.gcp.devopsacc.team:80/jerome-docker/hello-pipelines'
+          dockerImageName: 'platform-us.staging.gcp.devopsacc.team/jerome-docker/hello-pipelines'
           dockerImageTag: ${run_number}
           inputResources:
             - name: sample_resource_docker

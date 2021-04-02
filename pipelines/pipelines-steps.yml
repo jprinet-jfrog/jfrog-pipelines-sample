@@ -54,17 +54,12 @@ pipelines:
           dockerFileName: Dockerfile
           dockerImageName: 'platform-us.staging.gcp.devopsacc.team/jerome-docker-dev-local/hello-pipelines'
           dockerImageTag: ${run_number}
-          dockerOptions: '--build-arg ARCHIVE_PATH=./dependencyState/resources/gradle_app/build'
           inputResources:
             - name: jerome_build_info_promoted_gradle
             - name: jerome_github_resources
             - name: gradle_app
           integrations:
             - name: Artifactory
-        execution:
-          onStart:
-            - echo ${res_gradle_app_resourcePath}
-            - ls -lR
 
       - name: docker_push
         type: DockerPush

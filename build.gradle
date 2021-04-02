@@ -13,7 +13,7 @@ application {
 }
 
 group='com.jfrog.jerome'
-version="${projectVersion}"
+version='1.0'
 
 dependencies {
     implementation group: 'org.apache.struts', name: 'struts2-core', version: "2.5.26"

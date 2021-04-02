@@ -35,7 +35,7 @@ pipelines:
         configuration:
           targetRepository:      jerome-gradle-prod-local
           includeDependencies:   true
-          status:                'Validated by QA'
+          status:                'Approved'
           comment:               'Ready for production'
           copy:                  false
           inputSteps:
@@ -84,7 +84,7 @@ pipelines:
         configuration:
           targetRepository:      jerome-docker-prod-local
           includeDependencies:   true
-          status:                'Validated by QA'
+          status:                'Approved'
           comment:               'Ready for production'
           copy:                  false
           inputSteps:

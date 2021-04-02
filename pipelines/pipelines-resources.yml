@@ -37,5 +37,7 @@ resources:
     type: FileSpec
     configuration:
       sourceArtifactory: Artifactory
-      pattern: jerome-gradle-prod-local/com/jfrog/jerome/
+      pattern: jerome-gradle-prod-local/com/jfrog/jerome/**/*.jar
       target: build/
+      sortBy: ['created']
+      limit: 1

@@ -94,4 +94,44 @@ pipelines:
               trigger: false
           outputResources:
             - name: jerome_build_info_promoted_docker
- 
+
+      - name: helm_publish
+        type: HelmPublish
+        configuration:
+          helmVersion: 3
+          chartPath: pipelines-sample-chart
+          inputResources:
+            - name: jerome_github_resources
+          outputResources:
+            - name: jerome_helm_chart
+
+      - name: helm_deploy
+        type: HelmDeploy
+        configuration:
+          helmVersion: 3
+          flags: "--set image.tag=${latest_tag}"
+          releaseName: jfrog-pipelines-sample
+          integrations:
+            - name: k8s_emea_staging
+          inputResources:
+            - name: jerome_helm_chart
+        execution:
+          onStart:
+            - >
+              latest_tag=$(curl -X POST
+              https://platform-us.staging.gcp.devopsacc.team/artifactory/api/search/aql
+              -u 'jeromep@jfrog.com:AKCp8igr4nnn7qGCVLHBM6kn6uC2jBv58mzBTKY4oHdHWTSEyh5yqE3iE7w8Ljem4zKCfXdkM'
+              -H 'Content-Type: text/plain'
+              -H 'Cache-Control: no-cache'
+              -d 'items.find({
+                  "type": "file",
+                  "repo": "jerome-docker-prod-local",
+                  "name": { "$match": "*.json" },
+                  "path": { "$match": "hello-pipelines/*" }
+                })
+                .include("path")
+                .sort({"$desc": [ "path" ] })
+                .limit(1)'
+              | jq -r '.results[0].path'
+              | cut -f 2 -d '/')
+            - add_pipeline_variables latest_tag=18

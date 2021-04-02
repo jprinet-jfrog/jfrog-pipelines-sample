@@ -19,6 +19,14 @@ resources:
       sourceArtifactory:    Artifactory
       buildName:            jerome-pipelines-gradle
       buildNumber:          ${run_number}
+  - name: gradle_app
+    type: FileSpec
+    configuration:
+      sourceArtifactory: Artifactory
+      pattern: jerome-gradle-prod-local/com/jfrog/jerome/**/*.jar
+      target: build/
+      sortBy: ['created']
+      limit: 1
 
   - name: jerome_build_info_docker
     type: BuildInfo
@@ -33,11 +41,10 @@ resources:
       buildName:            jerome-pipelines-docker
       buildNumber:          ${run_number}
 
-  - name: gradle_app
-    type: FileSpec
+  - name: jerome_helm_chart
+    type: HelmChart
     configuration:
       sourceArtifactory: Artifactory
-      pattern: jerome-gradle-prod-local/com/jfrog/jerome/**/*.jar
-      target: build/
-      sortBy: ['created']
-      limit: 1
+      repository: jerome-docker-prod-local
+      chart: pipelines-sample
+      version: 1.0.0

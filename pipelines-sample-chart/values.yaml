@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: platform-us.staging.gcp.devopsacc.team/jerome-docker-prod-local/hello-pipelines
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: artifactory-pull-secret
+
+serviceAccount:
+  create: true
+  name: "jfrog-pipelines-sample"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false

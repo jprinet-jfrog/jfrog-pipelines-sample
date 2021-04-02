@@ -1,0 +1,12 @@
+version: 1
+type: gradle
+resolver:
+  repo: jerome-gradle-remote
+  serverId: Artifactory
+deployer:
+  repo: jerome-gradle-dev-local
+  serverId: Artifactory
+  deployMavenDescriptors: true
+  ivyPattern: '[organization]/[module]/ivy-[revision].xml'
+  artifactPattern: '[organization]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]'
+useWrapper: true

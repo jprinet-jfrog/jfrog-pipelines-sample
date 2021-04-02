@@ -1,20 +1,41 @@
 resources:
-  - name: sample_resource_docker
+  - name: jerome_github_resources
     type: GitRepo
     configuration:
       gitProvider: jerome_github
       path: jprinet-jfrog/jfrog-pipelines-sample
       branches:
-        include: feature/add_docker
-  - name: myBuildInfoDocker
+        include: feature/complete_pipeline
+
+  - name: jerome_build_info_gradle
     type: BuildInfo
     configuration:
       sourceArtifactory:    Artifactory
-      buildName:            sample_pipelines_docker
+      buildName:            jerome-pipelines-gradle
       buildNumber:          ${run_number}
-  - name: myBuildInfoDockerPromoted
+  - name: jerome_build_info_promoted_gradle
     type: BuildInfo
     configuration:
       sourceArtifactory:    Artifactory
-      buildName:            sample_pipelines_docker
+      buildName:            jerome-pipelines-gradle
       buildNumber:          ${run_number}
+
+  - name: jerome_build_info_docker
+    type: BuildInfo
+    configuration:
+      sourceArtifactory:    Artifactory
+      buildName:            jerome-pipelines-docker
+      buildNumber:          ${run_number}
+  - name: jerome_build_info_promoted_docker
+    type: BuildInfo
+    configuration:
+      sourceArtifactory:    Artifactory
+      buildName:            jerome-pipelines-docker
+      buildNumber:          ${run_number}
+
+  - name: gradle_app
+    type: FileSpec
+    configuration:
+      sourceArtifactory: Artifactory
+      pattern: jerome-gradle-prod-local/com/jfrog/jerome/
+      target: build/

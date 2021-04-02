@@ -1,6 +1,50 @@
 pipelines:
-  - name: jerome_pipelines_docker
+  - name: jerome_pipelines_test
+
     steps:
+      - name: gradle_build
+        type: GradleBuild
+        configuration:
+          runtime:
+            type: image
+            image:
+              auto:
+                language: java
+                versions:
+                  - '8.0'
+          gradleCommand:        clean artifactoryPublish
+          sourceLocation:       .
+          configFileLocation:   .jfrog/projects
+          configFileName:       gradle.yaml
+          forceXrayScan:        false
+          failOnScan:           false
+          autoPublishBuildInfo: true
+          inputResources:
+            - name: jerome_github_resources
+          outputResources:
+            - name: jerome_build_info_gradle
+          integrations:
+            - name: Artifactory
+        execution:
+          onStart:
+            - java -version
+            - jfrog -v
+
+      - name: gradle_promote
+        type: PromoteBuild
+        configuration:
+          targetRepository:      jerome-gradle-prod-local
+          includeDependencies:   true
+          status:                'Validated by QA'
+          comment:               'Ready for production'
+          copy:                  false
+          inputSteps:
+            - name: gradle_build
+          inputResources:
+            - name: jerome_build_info_gradle
+              trigger: false
+          outputResources:
+            - name: jerome_build_info_promoted_gradle
 
       - name: docker_build
         type: DockerBuild
@@ -8,10 +52,12 @@ pipelines:
           affinityGroup: dockerGroup
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: 'platform-us.prod.gcp.devopsacc.team/jerome-docker/hello-pipelines'
+          dockerImageName: 'platform-us.staging.gcp.devopsacc.team/jerome-docker-dev-local/hello-pipelines'
           dockerImageTag: ${run_number}
           inputResources:
-            - name: sample_resource_docker
+            - name: jerome_build_info_promoted_gradle
+            - name: jerome_github_resources
+            - name: gradle_app
           integrations:
             - name: Artifactory
 
@@ -19,12 +65,12 @@ pipelines:
         type: DockerPush
         configuration:
           affinityGroup: dockerGroup
-          targetRepository: jerome-docker
+          targetRepository: jerome-docker-dev-local
           autoPublishBuildInfo: true
-          forceXrayScan: true
-          failOnScan: true
+          forceXrayScan: false
+          failOnScan: false
           outputResources:
-            - name: myBuildInfoDocker
+            - name: jerome_build_info_docker
           integrations:
             - name: Artifactory
           inputSteps:
@@ -33,20 +79,19 @@ pipelines:
           onStart:
             - docker info
 
-      - name: promote_build
+      - name: docker_promote
         type: PromoteBuild
         configuration:
-          targetRepository:      docker-demo-prod-local
+          targetRepository:      jerome-docker-prod-local
           includeDependencies:   true
-          status:                "Validated by QA" 
-          comment:               "Ready for production"
-          copy:                  true
- 
+          status:                'Validated by QA'
+          comment:               'Ready for production'
+          copy:                  false
           inputSteps:
             - name: docker_push
           inputResources:
-            - name:         myBuildInfoDocker
+            - name: jerome_build_info_docker
               trigger: false
           outputResources:
-            - name:         myBuildInfoDockerPromoted
+            - name: jerome_build_info_promoted_docker
  

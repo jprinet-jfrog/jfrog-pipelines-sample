@@ -5,8 +5,7 @@ resources:
       gitProvider: jerome_github
       path: jprinet-jfrog/jfrog-pipelines-sample
       branches:
-        include: feature/complete_pipeline
-
+        include: master
   - name: jerome_build_info_gradle
     type: BuildInfo
     configuration:

@@ -117,21 +117,8 @@ pipelines:
             - name: jerome_helm_chart
         execution:
           onStart:
+            - set | grep Artifactory
             - >
-              latest_tag=$(curl -X POST
-              https://platform-us.staging.gcp.devopsacc.team/artifactory/api/search/aql
-              -u 'jeromep@jfrog.com:AKCp8igr4nnn7qGCVLHBM6kn6uC2jBv58mzBTKY4oHdHWTSEyh5yqE3iE7w8Ljem4zKCfXdkM'
-              -H 'Content-Type: text/plain'
-              -H 'Cache-Control: no-cache'
-              -d 'items.find({
-                  "type": "file",
-                  "repo": "jerome-docker-prod-local",
-                  "name": { "$match": "*.json" },
-                  "path": { "$match": "hello-pipelines/*" }
-                })
-                .include("path")
-                .sort({"$desc": [ "path" ] })
-                .limit(1)'
-              | jq -r '.results[0].path'
-              | cut -f 2 -d '/')
-            - add_pipeline_variables latest_tag=18
+              curl -X POST https://${res_jerome_helm_chart_sourceArtifactory_url}/artifactory/api/search/aql -u "${res_jerome_helm_chart_sourceArtifactory_user}:${res_jerome_helm_chart_sourceArtifactory_apikey}" -H 'Content-Type: text/plain' -d 'items.find({"type": "file","repo": "jerome-docker-prod-local","name": { "$match": "*.json" },"path": { "$match": "hello-pipelines/*" }}).include("path").sort({"$desc": [ "path" ] }).limit(1)' | jq -r '.results[0].path' | cut -f 2 -d '/') > .tag_from_aql
+            - cat .tag_from_aql
+            - add_pipeline_variables latest_tag=${tag_from_aql}

@@ -117,8 +117,21 @@ pipelines:
             - name: jerome_helm_chart
         execution:
           onStart:
-            - set | grep Artifactory
             - >
-              curl -X POST https://${res_jerome_helm_chart_sourceArtifactory_url}/artifactory/api/search/aql -u "${res_jerome_helm_chart_sourceArtifactory_user}:${res_jerome_helm_chart_sourceArtifactory_apikey}" -H 'Content-Type: text/plain' -d 'items.find({"type": "file","repo": "jerome-docker-prod-local","name": { "$match": "*.json" },"path": { "$match": "hello-pipelines/*" }}).include("path").sort({"$desc": [ "path" ] }).limit(1)' | jq -r '.results[0].path' | cut -f 2 -d '/') > .tag_from_aql
+              curl -X POST
+              ${res_jerome_helm_chart_sourceArtifactory_url}/api/search/aql
+              -u "${res_jerome_helm_chart_sourceArtifactory_user}:${res_jerome_helm_chart_sourceArtifactory_apikey}"
+              -H 'Content-Type: text/plain'
+              -d 'items.find({
+                  "type": "file",
+                  "repo":"jerome-docker-prod-local",
+                  "name": { "$match": "*.json" },
+                  "path": {"$match": "hello-pipelines/*" }
+                })
+                .include("path")
+                .sort({"$desc": ["path" ] })
+                .limit(1)' > aql_payload.json
+            - jq -r '.results[0].path' aql_payload.json > docker_image.txt
+            - cut -f 2 -d '/' docker_image.txt > .tag_from_aql
             - cat .tag_from_aql
-            - add_pipeline_variables latest_tag=${tag_from_aql}
+            - add_pipeline_variables latest_tag=$(cat .tag_from_aql)
